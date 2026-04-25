@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Unit Simulator — Basic Computer</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090f;
+    --panel: #0d1117;
+    --panel2: #111823;
+    --border: #1e2d40;
+    --border2: #243447;
+    --blue: #1a8cff;
+    --blue-glow: rgba(26,140,255,0.35);
+    --blue-dim: rgba(26,140,255,0.12);
+    --yellow: #f5c842;
+    --yellow-glow: rgba(245,200,66,0.35);
+    --yellow-dim: rgba(245,200,66,0.10);
+    --green: #00e5a0;
+    --green-glow: rgba(0,229,160,0.3);
+    --red: #ff4d6a;
+    --red-glow: rgba(255,77,106,0.3);
+    --text: #c8d8eb;
+    --text2: #5a7a9a;
+    --text3: #2a3a4a;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Orbitron', sans-serif;
+    --body: 'DM Sans', sans-serif;
+    --radius: 6px;
+    --radius-lg: 12px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(26,140,255,0.08) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(30,45,64,0.25) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(30,45,64,0.25) 40px);
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 36px 20px 20px;
+    position: relative;
+  }
+  .header-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--green);
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 20px;
+    padding: 4px 14px;
+    margin-bottom: 14px;
+  }
+  .header h1 {
+    font-family: var(--display);
+    font-size: clamp(18px, 3.5vw, 32px);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .header h1 span { color: var(--blue); }
+  .header p {
+    font-size: 13px;
+    color: var(--text2);
+    letter-spacing: 0.02em;
+  }
+
+  /* MAIN LAYOUT */
+  .sim-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+    display: grid;
+    gap: 14px;
+  }
+
+  /* CLOCK BAR */
+  .clock-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .clk-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    letter-spacing: 0.12em;
+    flex-shrink: 0;
+  }
+  .clk-wave-wrap {
+    flex: 1;
+    min-width: 200px;
+    height: 44px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+  }
+  #clk-canvas { display: block; width: 100%; height: 100%; }
+  .clk-freq {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+    flex-shrink: 0;
+  }
+  .cycle-indicator {
+    font-family: var(--display);
+    font-size: 11px;
+    color: var(--blue);
+    background: var(--blue-dim);
+    border: 1px solid rgba(26,140,255,0.2);
+    border-radius: 4px;
+    padding: 3px 10px;
+    flex-shrink: 0;
+  }
+
+  /* STATE DISPLAY */
+  .state-display {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .state-display::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--blue);
+    box-shadow: 0 0 12px var(--blue-glow);
+    border-radius: 0 2px 2px 0;
+    transition: background 0.3s;
+  }
+  .state-display.idle::before { background: var(--text3); box-shadow: none; }
+  .state-tag {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--blue);
+    min-width: 48px;
+    text-shadow: 0 0 20px var(--blue-glow);
+    transition: color 0.3s, text-shadow 0.3s;
+  }
+  .state-display.idle .state-tag { color: var(--text3); text-shadow: none; }
+  .state-divider { width: 1px; height: 36px; background: var(--border); flex-shrink: 0; }
+  .state-info { flex: 1; }
+  .state-name {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+  .state-sub { font-size: 12px; color: var(--text2); }
+
+  /* T-STATE ROW */
+  .tstate-section { }
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--text2);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .tstate-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .t-cell {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 8px 10px;
+    text-align: center;
+    cursor: default;
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .t-cell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--blue-dim);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .t-cell.active {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 1px var(--blue), 0 0 20px var(--blue-glow), inset 0 0 30px rgba(26,140,255,0.05);
+  }
+  .t-cell.active::before { opacity: 1; }
+  .t-cell.done { border-color: var(--border2); }
+  .t-cell.done .t-id { color: var(--text2); }
+  .t-id {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text3);
+    transition: color 0.25s, text-shadow 0.25s;
+    position: relative;
+  }
+  .t-cell.active .t-id {
+    color: var(--blue);
+    text-shadow: 0 0 16px var(--blue-glow);
+  }
+  .t-cell.done .t-id { color: #2a5580; }
+  .t-name {
+    font-size: 9.5px;
+    color: var(--text3);
+    margin-top: 4px;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+    position: relative;
+  }
+  .t-cell.active .t-name { color: #5a9acc; }
+  .t-cell.done .t-name { color: var(--text3); }
+  .t-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text3);
+    margin: 6px auto 0;
+    transition: background 0.25s, box-shadow 0.25s;
+    position: relative;
+  }
+  .t-cell.active .t-dot {
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue);
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+  .t-cell.done .t-dot { background: #1a3a5a; }
+
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 6px var(--blue); }
+    50% { box-shadow: 0 0 14px var(--blue), 0 0 24px var(--blue-glow); }
+  }
+
+  /* TWO-COLUMN MIDDLE */
+  .mid-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 680px) { .mid-grid { grid-template-columns: 1fr; } }
+
+  /* DECODE PANEL */
+  .decode-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .d-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+  .d-cell {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 4px 8px;
+    text-align: center;
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .d-cell::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--text3);
+    transition: background 0.25s, box-shadow 0.25s;
+  }
+  .d-cell.active {
+    background: var(--yellow-dim);
+    border-color: var(--yellow);
+    box-shadow: 0 0 16px var(--yellow-glow), inset 0 0 20px rgba(245,200,66,0.04);
+  }
+  .d-cell.active::after {
+    background: var(--yellow);
+    box-shadow: 0 0 8px var(--yellow);
+  }
+  .d-name {
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text3);
+    transition: color 0.25s, text-shadow 0.25s;
+  }
+  .d-cell.active .d-name {
+    color: var(--yellow);
+    text-shadow: 0 0 12px var(--yellow-glow);
+  }
+  .d-bit {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 3px;
+    transition: color 0.25s;
+  }
+  .d-cell.active .d-bit { color: #c8a020; }
+
+  /* MICRO-OPS PANEL */
+  .microop-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .mo-list { display: flex; flex-direction: column; gap: 6px; }
+  .mo-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    transition: border-color 0.25s, background 0.25s;
+  }
+  .mo-item.active {
+    border-color: rgba(26,140,255,0.4);
+    background: rgba(26,140,255,0.04);
+  }
+  .mo-tid {
+    font-family: var(--display);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    width: 24px;
+    flex-shrink: 0;
+    transition: color 0.25s;
+  }
+  .mo-item.active .mo-tid { color: var(--blue); }
+  .mo-eq {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    flex: 1;
+    transition: color 0.25s;
+  }
+  .mo-item.active .mo-eq { color: #7abce8; }
+  .mo-tag {
+    font-size: 9px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.15);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--green);
+    font-family: var(--mono);
+  }
+
+  /* WAVEFORM */
+  .wave-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .wave-grid { display: flex; flex-direction: column; gap: 5px; }
+  .wave-row {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    align-items: center;
+    gap: 8px;
+    height: 24px;
+  }
+  .wave-sig {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text2);
+    text-align: right;
+    letter-spacing: 0.05em;
+  }
+  .wave-track {
+    height: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .wave-fill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 0%;
+    transition: width 0.15s linear;
+  }
+  .wave-fill.clk { background: rgba(0,229,160,0.15); }
+  .wave-fill.sc { background: rgba(26,140,255,0.15); }
+  .wave-fill.d4 { background: rgba(245,200,66,0.15); }
+  .wave-pulse {
+    position: absolute; top: 0; bottom: 0;
+    display: flex; flex-direction: column;
+    justify-content: center;
+  }
+  .wave-canvas-inner { width: 100%; height: 22px; }
+
+  /* EXPLANATION BOX */
+  .explain-panel {
+    background: var(--panel);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .explain-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue), transparent);
+    opacity: 0.5;
+  }
+  .explain-title {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--blue);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  .explain-body {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text2);
+  }
+  .explain-body strong { color: var(--text); font-weight: 500; }
+  .explain-ops {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .op-chip {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--panel2);
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    padding: 3px 10px;
+    color: var(--blue);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  /* CONTROLS */
+  .ctrl-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: var(--display);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+    box-shadow: 0 0 20px var(--blue-glow);
+  }
+  .btn-primary:hover { background: #3aa0ff; box-shadow: 0 0 28px var(--blue-glow); }
+  .btn-secondary {
+    background: transparent;
+    border-color: var(--border2);
+    color: var(--text);
+  }
+  .btn-secondary:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text2);
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .ctrl-sep { width: 1px; height: 28px; background: var(--border); flex-shrink: 0; }
+  .speed-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .speed-label { font-family: var(--mono); font-size: 10px; color: var(--text2); letter-spacing: 0.1em; }
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 3px;
+    background: var(--border2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--blue);
+    box-shadow: 0 0 8px var(--blue-glow);
+    cursor: pointer;
+  }
+  .speed-val { font-family: var(--mono); font-size: 10px; color: var(--blue); min-width: 28px; text-align: right; }
+
+  /* REGISTER VIEW */
+  .reg-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 7px;
+  }
+  @media (max-width: 600px) { .reg-row { grid-template-columns: repeat(3, 1fr); } }
+  .reg-cell {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 8px 6px;
+    text-align: center;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .reg-cell.active {
+    border-color: rgba(0,229,160,0.4);
+    box-shadow: 0 0 10px rgba(0,229,160,0.15);
+  }
+  .reg-name { font-family: var(--display); font-size: 10px; font-weight: 600; color: var(--text3); margin-bottom: 4px; transition: color 0.25s; }
+  .reg-cell.active .reg-name { color: var(--green); }
+  .reg-val { font-family: var(--mono); font-size: 12px; color: var(--text2); transition: color 0.25s; }
+  .reg-cell.active .reg-val { color: #7aeece; }
+
+  /* TIMING DIAGRAM */
+  .timing-panel {
+    background: #080c14;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(26,140,255,0.04), inset 0 0 60px rgba(0,0,0,0.3);
+  }
+  .timing-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--green) 50%, transparent 100%);
+    opacity: 0.5;
+  }
+  #timing-canvas-wrap {
+    width: 100%;
+    margin-top: 10px;
+    overflow-x: auto;
+    border: 1px solid rgba(30,45,64,0.8);
+    border-radius: 6px;
+    background: #0a0f18;
+  }
+  #timing-canvas {
+    display: block;
+    min-width: 560px;
+    width: 100%;
+  }
+
+  /* Scan line overlay */
+  .scanline {
+    position: fixed;
+    pointer-events: none;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+    z-index: 999;
+  }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+
+<div class="header">
+  <div class="header-badge">COA LAB SIMULATOR v2.4</div>
+  <h1>Control <span>Unit</span> — Basic Computer</h1>
+  <p>Micro-operation timing diagram · T0 to T4 · D0 to D7 control signals</p>
+</div>
+
+<div class="sim-wrap">
+
+  <!-- CLOCK BAR -->
+  <div class="clock-bar">
+    <span class="clk-label">CLK SIGNAL</span>
+    <div class="clk-wave-wrap">
+      <canvas id="clk-canvas"></canvas>
+    </div>
+    <span class="clk-freq" id="clk-freq">— Hz</span>
+    <span class="cycle-indicator" id="cycle-badge">IDLE</span>
+  </div>
+
+  <!-- STATE DISPLAY -->
+  <div class="state-display idle" id="state-display">
+    <div class="state-tag" id="state-tag">—</div>
+    <div class="state-divider"></div>
+    <div class="state-info">
+      <div class="state-name" id="state-name">Waiting to start</div>
+      <div class="state-sub" id="state-sub">Press START or use STEP to begin the simulation</div>
+    </div>
+  </div>
+
+  <!-- T-STATES -->
+  <div class="tstate-section">
+    <div class="section-title">SEQUENCE COUNTER — T-STATES</div>
+    <div class="tstate-row" id="tstate-row"></div>
+  </div>
+
+  <!-- MID GRID: Decode + Micro-ops -->
+  <div class="mid-grid">
+    <!-- Decode panel -->
+    <div class="decode-panel">
+      <div class="section-title">INSTRUCTION DECODE — CONTROL LINES</div>
+      <div class="d-grid" id="decode-row"></div>
+    </div>
+    <!-- Micro-ops -->
+    <div class="microop-panel">
+      <div class="section-title">MICRO-OPERATIONS</div>
+      <div class="mo-list" id="mo-list"></div>
+    </div>
+  </div>
+
+  <!-- WAVEFORM + REGISTERS -->
+  <div class="mid-grid">
+    <div class="wave-panel">
+      <div class="section-title">TIMING WAVEFORM</div>
+      <div class="wave-grid" id="wave-grid"></div>
+    </div>
+    <div class="decode-panel">
+      <div class="section-title">REGISTER STATE</div>
+      <div class="reg-row" id="reg-row"></div>
+    </div>
+  </div>
+
+
+  <!-- TIMING DIAGRAM -->
+  <div class="timing-panel">
+    <div class="section-title">◈ TIMING DIAGRAM — CONTROL SIGNALS</div>
+    <div id="timing-canvas-wrap">
+      <canvas id="timing-canvas" height="280"></canvas>
+    </div>
+  </div>
+
+  <!-- EXPLANATION -->
+  <div class="explain-panel">
+    <div class="explain-title">◈ STATE EXPLANATION</div>
+    <div class="explain-body" id="explain-body">
+      The simulation is <strong>ready</strong>. Press <strong>START</strong> for auto-run or <strong>STEP</strong> to advance one clock pulse at a time. The control unit sequences through T0 → T4 executing one instruction cycle.
+    </div>
+    <div class="explain-ops" id="explain-ops"></div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="ctrl-panel">
+    <button class="btn btn-primary" id="btn-start" onclick="startSim()">▶ START</button>
+    <button class="btn btn-secondary" id="btn-step" onclick="stepSim()">STEP →</button>
+    <button class="btn btn-ghost" id="btn-pause" onclick="pauseSim()" disabled>⏸ PAUSE</button>
+    <button class="btn btn-ghost" id="btn-reset" onclick="resetSim()">↺ RESET</button>
+    <div class="ctrl-sep"></div>
+    <div class="speed-group">
+      <span class="speed-label">SPEED</span>
+      <input type="range" id="speed-slider" min="200" max="2000" value="900" step="100">
+      <span class="speed-val" id="speed-val">1.1s</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Data ────────────────────────────────────────────────
+const STATES = [
+  {
+    id: 'T0', name: 'SEQUENCE COUNTER INIT', short: 'Initialize',
+    explain: 'The <strong>sequence counter (SC)</strong> is reset to zero. The <strong>Address Register (AR)</strong> is loaded with the contents of the Program Counter (PC), pointing to the memory location of the next instruction to be fetched.',
+    ops: ['SC ← 0', 'AR ← PC'],
+    activeD: -1,
+    regs: { PC: '0x1A2', AR: '0x1A2', IR: '0x000', DR: '0x000', AC: '0x000', SC: '0' },
+    wave: { CLK:1, SC:1, D4:0 }
+  },
+  {
+    id: 'T1', name: 'INSTRUCTION FETCH', short: 'Fetch',
+    explain: 'The instruction stored at memory address <strong>M[AR]</strong> is read and placed into the <strong>Instruction Register (IR)</strong>. Simultaneously, the <strong>Program Counter (PC)</strong> is incremented to point to the next instruction.',
+    ops: ['IR ← M[AR]', 'PC ← PC + 1'],
+    activeD: -1,
+    regs: { PC: '0x1A3', AR: '0x1A2', IR: '0x4FFF', DR: '0x000', AC: '0x000', SC: '1' },
+    wave: { CLK:1, SC:1, D4:0 }
+  },
+  {
+    id: 'T2', name: 'INSTRUCTION DECODE', short: 'Decode',
+    explain: 'The opcode bits <strong>IR[14–12]</strong> are decoded by the 3×8 decoder. Output line <strong>D4</strong> is asserted HIGH, indicating the current instruction type. The <strong>effective address</strong> (lower 12 bits of IR) is loaded into AR.',
+    ops: ['Decode IR[12–14]', 'D4 ← 1', 'AR ← IR[0–11]'],
+    activeD: 4,
+    regs: { PC: '0x1A3', AR: '0x0FF', IR: '0x4FFF', DR: '0x000', AC: '0x000', SC: '2' },
+    wave: { CLK:1, SC:1, D4:1 }
+  },
+  {
+    id: 'T3', name: 'EXECUTION BEGINS', short: 'Execute',
+    explain: '<strong>D4 remains asserted</strong>. The memory word at the effective address in AR is read into the <strong>Data Register (DR)</strong>. The ALU is enabled and begins processing. This is the first execution micro-step.',
+    ops: ['DR ← M[AR]', 'D4 = 1 (held)', 'ALU enable'],
+    activeD: 4,
+    regs: { PC: '0x1A3', AR: '0x0FF', IR: '0x4FFF', DR: '0x07B', AC: '0x000', SC: '3' },
+    wave: { CLK:1, SC:1, D4:1 }
+  },
+  {
+    id: 'T4', name: 'EXECUTION COMPLETE', short: 'Complete',
+    explain: 'The ALU result is written back into the <strong>Accumulator (AC)</strong>. Control line <strong>D4 is de-asserted</strong> (goes LOW). The sequence counter resets to 0, completing one full instruction cycle. The control unit is now ready for the next fetch.',
+    ops: ['AC ← DR op AC', 'D4 ← 0', 'SC ← 0'],
+    activeD: -1,
+    regs: { PC: '0x1A3', AR: '0x0FF', IR: '0x4FFF', DR: '0x07B', AC: '0x07B', SC: '0' },
+    wave: { CLK:1, SC:0, D4:0 }
+  }
+];
+
+const DLINES = ['D0','D1','D2','D3','D4','D5','D6','D7'];
+const REGS = ['PC','AR','IR','DR','AC','SC'];
+const WAVE_SIGS = ['CLK','SC','D4'];
+const WAVE_COLORS = { CLK: '#00e5a0', SC: '#1a8cff', D4: '#f5c842' };
+
+let currentT = -1;
+let running = false;
+let timer = null;
+let waveHistory = {}; // sig -> [val per t-state]
+WAVE_SIGS.forEach(s => { waveHistory[s] = []; });
+
+// ─── Build DOM ────────────────────────────────────────────
+// T-states
+const tRow = document.getElementById('tstate-row');
+STATES.forEach((s,i) => {
+  const el = document.createElement('div');
+  el.className = 't-cell';
+  el.id = 't-cell-' + i;
+  el.innerHTML = `<div class="t-id">${s.id}</div><div class="t-name">${s.short}</div><div class="t-dot"></div>`;
+  tRow.appendChild(el);
+});
+
+// Decode lines
+const dRow = document.getElementById('decode-row');
+DLINES.forEach((d,i) => {
+  const el = document.createElement('div');
+  el.className = 'd-cell';
+  el.id = 'd-cell-' + i;
+  el.innerHTML = `<div class="d-name">${d}</div><div class="d-bit" id="d-bit-${i}">0</div>`;
+  dRow.appendChild(el);
+});
+
+// Micro-ops
+const moList = document.getElementById('mo-list');
+STATES.forEach((s,i) => {
+  const el = document.createElement('div');
+  el.className = 'mo-item';
+  el.id = 'mo-' + i;
+  el.innerHTML = `<span class="mo-tid">${s.id}</span><span class="mo-eq">${s.ops.join(' · ')}</span>${i===currentT ? '<span class="mo-tag">ACTIVE</span>' : ''}`;
+  moList.appendChild(el);
+});
+
+// Wave rows
+const waveGrid = document.getElementById('wave-grid');
+WAVE_SIGS.forEach(sig => {
+  const row = document.createElement('div');
+  row.className = 'wave-row';
+  row.innerHTML = `<span class="wave-sig">${sig}</span><div class="wave-track" id="wt-${sig}"><canvas id="wc-${sig}" style="display:block;width:100%;height:22px;"></canvas></div>`;
+  waveGrid.appendChild(row);
+});
+
+// Registers
+const regRow = document.getElementById('reg-row');
+REGS.forEach(r => {
+  const el = document.createElement('div');
+  el.className = 'reg-cell';
+  el.id = 'reg-' + r;
+  el.innerHTML = `<div class="reg-name">${r}</div><div class="reg-val" id="regv-${r}">—</div>`;
+  regRow.appendChild(el);
+});
+
+// ─── Clock Canvas ─────────────────────────────────────────
+const clkCanvas = document.getElementById('clk-canvas');
+function resizeClk() {
+  clkCanvas.width = clkCanvas.parentElement.clientWidth;
+  clkCanvas.height = 44;
+  drawClkWave();
+}
+
+function drawClkWave() {
+  const W = clkCanvas.width, H = clkCanvas.height;
+  const ctx = clkCanvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  const totalSlots = 5;
+  const slotW = W / totalSlots;
+  const hi = 6, lo = H - 8, riseW = 3;
+
+  // background grid
+  ctx.strokeStyle = 'rgba(30,45,64,0.6)';
+  ctx.lineWidth = 0.5;
+  for (let i=0; i<=totalSlots; i++) {
+    ctx.beginPath();
+    ctx.setLineDash([2,4]);
+    ctx.moveTo(i*slotW, 0); ctx.lineTo(i*slotW, H);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // T-label
+  ctx.font = '9px "Share Tech Mono"';
+  ctx.fillStyle = 'rgba(90,122,154,0.6)';
+  for (let i=0; i<totalSlots; i++) {
+    ctx.fillText('T'+i, i*slotW + 4, H-1);
+  }
+
+  // draw wave
+  ctx.strokeStyle = '#00e5a0';
+  ctx.lineWidth = 1.8;
+  ctx.shadowColor = '#00e5a0';
+  ctx.shadowBlur = currentT >= 0 ? 6 : 0;
+  ctx.beginPath();
+
+  let x = 0;
+  ctx.moveTo(0, lo);
+
+  for (let i=0; i<totalSlots; i++) {
+    const x0 = i * slotW;
+    const x1 = x0 + slotW;
+    const active = i <= currentT && currentT >= 0;
+    if (active) {
+      ctx.lineTo(x0, lo);
+      ctx.lineTo(x0, hi);
+      ctx.lineTo(x0 + slotW * 0.42, hi);
+      ctx.lineTo(x0 + slotW * 0.42, lo);
+      ctx.lineTo(x1, lo);
+    } else {
+      ctx.lineTo(x1, lo);
+    }
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+// ─── Wave canvases ────────────────────────────────────────
+function initWaveCanvases() {
+  WAVE_SIGS.forEach(sig => {
+    const c = document.getElementById('wc-' + sig);
+    const track = document.getElementById('wt-' + sig);
+    c.width = track.clientWidth || 200;
+    c.height = 22;
+  });
+}
+setTimeout(initWaveCanvases, 80);
+
+function drawSignalWave(sig) {
+  const c = document.getElementById('wc-' + sig);
+  if (!c) return;
+  const track = document.getElementById('wt-' + sig);
+  c.width = track.clientWidth || c.width;
+  const W = c.width, H = c.height;
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  const vals = waveHistory[sig];
+  const n = vals.length;
+  if (n === 0) {
+    ctx.strokeStyle = 'rgba(42,58,74,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(0, H-4); ctx.lineTo(W, H-4); ctx.stroke();
+    return;
+  }
+
+  const slotW = W / 5;
+  const hi = 3, lo = H - 4;
+  const color = WAVE_COLORS[sig];
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.6;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+
+  let prevY = vals[0] ? hi : lo;
+  ctx.moveTo(0, prevY);
+
+  for (let i=0; i<5; i++) {
+    const x0 = i * slotW;
+    const x1 = (i+1) * slotW;
+    const v = vals[i];
+    const y = (v !== undefined && v) ? hi : lo;
+    if (v === undefined) {
+      // future: draw flat at current last level
+      ctx.lineTo(x1, prevY);
+    } else {
+      if (y !== prevY) {
+        ctx.lineTo(x0, prevY);
+        ctx.lineTo(x0, y);
+      }
+      ctx.lineTo(x1, y);
+      prevY = y;
+    }
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // T-labels
+  ctx.font = '8px "Share Tech Mono"';
+  ctx.fillStyle = 'rgba(90,122,154,0.5)';
+  for (let i=0; i<5; i++) {
+    ctx.fillText('T'+i, i*slotW+2, H-1);
+  }
+}
+
+function drawAllWaves() {
+  WAVE_SIGS.forEach(sig => drawSignalWave(sig));
+}
+
+// ─── Apply state ──────────────────────────────────────────
+function applyState(idx) {
+  const s = idx >= 0 && idx < STATES.length ? STATES[idx] : null;
+
+  // T-cells
+  STATES.forEach((_,i) => {
+    const el = document.getElementById('t-cell-'+i);
+    el.className = 't-cell' + (i===idx ? ' active' : (i<idx ? ' done' : ''));
+  });
+
+  // State display
+  const disp = document.getElementById('state-display');
+  if (s) {
+    disp.className = 'state-display';
+    document.getElementById('state-tag').textContent = s.id;
+    document.getElementById('state-name').textContent = 'Current State: ' + s.id + ' — ' + s.name;
+    document.getElementById('state-sub').textContent = s.short + ' phase';
+  } else {
+    disp.className = 'state-display idle';
+    document.getElementById('state-tag').textContent = '—';
+    document.getElementById('state-name').textContent = 'Waiting to start';
+    document.getElementById('state-sub').textContent = 'Press START or use STEP to begin the simulation';
+  }
+
+  // Decode lines
+  DLINES.forEach((d,i) => {
+    const el = document.getElementById('d-cell-'+i);
+    const bit = document.getElementById('d-bit-'+i);
+    const active = s && s.activeD === i;
+    el.className = 'd-cell' + (active ? ' active' : '');
+    bit.textContent = active ? '1' : '0';
+  });
+
+  // Micro-ops
+  STATES.forEach((_,i) => {
+    const el = document.getElementById('mo-'+i);
+    const isActive = i === idx;
+    el.className = 'mo-item' + (isActive ? ' active' : '');
+    const tag = el.querySelector('.mo-tag');
+    if (isActive && !tag) {
+      const sp = document.createElement('span');
+      sp.className = 'mo-tag'; sp.textContent = 'ACTIVE';
+      el.appendChild(sp);
+    } else if (!isActive && tag) tag.remove();
+  });
+
+  // Explanation
+  if (s) {
+    document.getElementById('explain-body').innerHTML = s.explain;
+    document.getElementById('explain-ops').innerHTML = s.ops.map(o => `<span class="op-chip">${o}</span>`).join('');
+  } else {
+    document.getElementById('explain-body').innerHTML = 'The simulation is <strong>ready</strong>. Press <strong>START</strong> for auto-run or <strong>STEP</strong> to advance one clock pulse at a time. The control unit sequences through T0 → T4 executing one instruction cycle.';
+    document.getElementById('explain-ops').innerHTML = '';
+  }
+
+  // Registers
+  REGS.forEach(r => {
+    const cell = document.getElementById('reg-' + r);
+    const val = document.getElementById('regv-' + r);
+    if (s) {
+      const v = s.regs[r];
+      const prev = idx > 0 ? STATES[idx-1].regs[r] : null;
+      val.textContent = v;
+      cell.className = 'reg-cell' + (prev && prev !== v ? ' active' : '');
+    } else {
+      val.textContent = '—';
+      cell.className = 'reg-cell';
+    }
+  });
+
+  // Wave history
+  if (s) {
+    WAVE_SIGS.forEach(sig => {
+      waveHistory[sig][idx] = s.wave[sig];
+    });
+  }
+
+  // Clock
+  document.getElementById('cycle-badge').textContent = s ? `CYCLE ${idx+1}/5 · ${s.id}` : 'IDLE';
+  document.getElementById('clk-freq').textContent = s ? (running ? '~1 Hz' : 'STEP') : '— Hz';
+  drawClkWave();
+  drawAllWaves();
+  drawTimingDiagram();
+}
+
+// ─── Controls ─────────────────────────────────────────────
+function stepSim() {
+  if (currentT < STATES.length - 1) {
+    currentT++;
+    applyState(currentT);
+  }
+  document.getElementById('btn-step').disabled = currentT >= STATES.length - 1;
+  if (currentT >= STATES.length - 1 && running) finishRun();
+}
+
+function startSim() {
+  if (currentT >= STATES.length - 1) { resetSim(); setTimeout(startSim, 60); return; }
+  running = true;
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('btn-pause').disabled = false;
+  document.getElementById('btn-step').disabled = true;
+  scheduleNext();
+}
+
+function scheduleNext() {
+  const speed = parseInt(document.getElementById('speed-slider').value);
+  timer = setTimeout(() => {
+    if (!running) return;
+    stepSim();
+    if (currentT < STATES.length - 1) scheduleNext();
+    else finishRun();
+  }, speed);
+}
+
+function pauseSim() {
+  running = false;
+  clearTimeout(timer);
+  document.getElementById('btn-pause').disabled = true;
+  document.getElementById('btn-start').textContent = '▶ RESUME';
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-step').disabled = currentT >= STATES.length - 1;
+  document.getElementById('clk-freq').textContent = 'PAUSED';
+}
+
+function finishRun() {
+  running = false;
+  clearTimeout(timer);
+  document.getElementById('btn-pause').disabled = true;
+  document.getElementById('btn-start').textContent = '↺ REPLAY';
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-step').disabled = true;
+  document.getElementById('clk-freq').textContent = 'DONE';
+}
+
+function resetSim() {
+  running = false;
+  clearTimeout(timer);
+  currentT = -1;
+  WAVE_SIGS.forEach(s => { waveHistory[s] = []; });
+  applyState(-1);
+  document.getElementById('btn-start').textContent = '▶ START';
+  document.getElementById('btn-start').disabled = false;
+  document.getElementById('btn-pause').disabled = true;
+  document.getElementById('btn-step').disabled = false;
+  // clear t-cells
+  STATES.forEach((_,i) => { document.getElementById('t-cell-'+i).className = 't-cell'; });
+}
+
+// Speed slider
+const speedSlider = document.getElementById('speed-slider');
+const speedVal = document.getElementById('speed-val');
+speedSlider.addEventListener('input', () => {
+  const v = parseInt(speedSlider.value);
+  speedVal.textContent = (v/1000).toFixed(1) + 's';
+});
+speedVal.textContent = (parseInt(speedSlider.value)/1000).toFixed(1) + 's';
+
+
+// ─── Timing Diagram ──────────────────────────────────────
+// ─── Timing Diagram ──────────────────────────────────────
+// Signal definitions: label, key for data lookup, color, glow
+const TIMING_SIGNALS = [
+  { label: 'Clock', key: 'CLK', color: '#00e5a0', glow: 'rgba(0,229,160,0.18)' },
+  { label: 'T0',    key: 'T0',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+  { label: 'T1',    key: 'T1',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+  { label: 'T2',    key: 'T2',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+  { label: 'T3',    key: 'T3',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+  { label: 'T4',    key: 'T4',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+  { label: 'D4',    key: 'D4',  color: '#f5c842', glow: 'rgba(245,200,66,0.18)' },
+  { label: 'CLR',   key: 'CLR', color: '#ff4d6a', glow: 'rgba(255,77,106,0.18)' },
+  { label: 'SC',    key: 'SC',  color: '#1a8cff', glow: 'rgba(26,140,255,0.18)' },
+];
+
+/**
+ * Returns per-signal value arrays [t0,t1,t2,t3,t4].
+ * Only slots 0..activeT are "revealed"; the rest stay at last-known level.
+ * activeT = -1 means idle — all signals start LOW and nothing is revealed.
+ */
+function getTimingValues(activeT) {
+  const N = 5;
+  // Full truth table (what each signal would be at each T-state)
+  const truth = {
+    CLK: [1,1,1,1,1],   // clock always pulses — drawn specially
+    T0:  [1,0,0,0,0],
+    T1:  [0,1,0,0,0],
+    T2:  [0,0,1,0,0],
+    T3:  [0,0,0,1,0],
+    T4:  [0,0,0,0,1],
+    D4:  [0,0,1,1,0],
+    CLR: [0,0,0,0,0],
+    SC:  [1,1,1,1,0],
+  };
+  // Build display arrays: revealed up to activeT, flatline beyond
+  const out = {};
+  Object.keys(truth).forEach(key => {
+    const arr = [];
+    for (let t = 0; t < N; t++) {
+      if (activeT < 0 || t > activeT) {
+        // not yet reached — hold the last known value (or 0 if before start)
+        arr.push(t > 0 ? arr[t-1] : 0);
+      } else {
+        arr.push(truth[key][t]);
+      }
+    }
+    out[key] = arr;
+  });
+  return out;
+}
+
+function drawTimingDiagram() {
+  const canvas = document.getElementById('timing-canvas');
+  if (!canvas) return;
+  const wrap = document.getElementById('timing-canvas-wrap');
+  const W = Math.max(wrap.clientWidth || 600, 560);
+
+  const LABEL_W  = 52;
+  const RIGHT_PAD = 18;
+  const TOP_PAD  = 26;  // space for T-column headers
+  const ROW_H    = 28;  // height of the signal HIGH level area
+  const ROW_GAP  = 6;   // gap between rows
+  const TOTAL_ROW = ROW_H + ROW_GAP;
+  const N_SLOTS  = 5;
+  const N_SIGS   = TIMING_SIGNALS.length;
+  const H        = TOP_PAD + N_SIGS * TOTAL_ROW + 10;
+
+  canvas.width  = W;
+  canvas.height = H;
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Background ────────────────────────────────────────
+  ctx.fillStyle = '#0a0f18';
+  ctx.fillRect(0, 0, W, H);
+
+  const drawW = W - LABEL_W - RIGHT_PAD;
+  const slotW = drawW / N_SLOTS;
+  const activeT = currentT;
+  const vals = getTimingValues(activeT);
+
+  // ── Highlight active column ───────────────────────────
+  if (activeT >= 0) {
+    const colX = LABEL_W + activeT * slotW;
+    ctx.fillStyle = 'rgba(26,140,255,0.07)';
+    ctx.fillRect(colX, 0, slotW, H);
+    // top + bottom accent lines on active column
+    ctx.fillStyle = 'rgba(26,140,255,0.25)';
+    ctx.fillRect(colX, 0, slotW, 2);
+    ctx.fillRect(colX, H-2, slotW, 2);
+  }
+
+  // ── T-column header labels ────────────────────────────
+  ctx.font = '10px "Share Tech Mono"';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < N_SLOTS; i++) {
+    const cx = LABEL_W + i * slotW + slotW / 2;
+    ctx.fillStyle = (i === activeT) ? '#1a8cff' : 'rgba(90,122,154,0.65)';
+    ctx.fillText('T' + i, cx, 16);
+  }
+
+  // ── Vertical grid lines ───────────────────────────────
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= N_SLOTS; i++) {
+    const x = LABEL_W + i * slotW;
+    ctx.strokeStyle = (i > 0 && i <= activeT)
+      ? 'rgba(26,140,255,0.22)'
+      : 'rgba(30,45,64,0.8)';
+    ctx.lineWidth = (i === activeT || i === activeT+1) ? 1 : 0.5;
+    ctx.setLineDash([3, 5]);
+    ctx.beginPath();
+    ctx.moveTo(x, TOP_PAD - 4);
+    ctx.lineTo(x, H - 4);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.lineWidth = 1;
+
+  // ── Draw each signal row ──────────────────────────────
+  TIMING_SIGNALS.forEach((sig, si) => {
+    const rowTop = TOP_PAD + si * TOTAL_ROW;
+    const yHi   = rowTop + 4;       // y coordinate for HIGH level
+    const yLo   = rowTop + ROW_H - 4; // y coordinate for LOW level
+    const yMid  = (yHi + yLo) / 2;
+
+    // Row background stripe (alternating)
+    if (si % 2 === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.012)';
+      ctx.fillRect(LABEL_W, rowTop, drawW, ROW_H);
+    }
+
+    // Signal label
+    ctx.font = '10px "Share Tech Mono"';
+    ctx.fillStyle = sig.color;
+    ctx.textAlign = 'right';
+    ctx.shadowColor = sig.color;
+    ctx.shadowBlur = 4;
+    ctx.fillText(sig.label, LABEL_W - 8, yMid + 3.5);
+    ctx.shadowBlur = 0;
+
+    const sigVals = vals[sig.key];
+
+    // ── Clock: special square-wave rendering ──────────
+    if (sig.key === 'CLK') {
+      ctx.strokeStyle = sig.color;
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = sig.color;
+      ctx.shadowBlur = (activeT >= 0) ? 6 : 0;
+      ctx.beginPath();
+      ctx.moveTo(LABEL_W, yLo);
+      for (let t = 0; t < N_SLOTS; t++) {
+        const x0   = LABEL_W + t * slotW;
+        const xMid = x0 + slotW * 0.42;
+        const x1   = x0 + slotW;
+        if (t <= activeT) {
+          ctx.lineTo(x0,   yLo);
+          ctx.lineTo(x0,   yHi);
+          ctx.lineTo(xMid, yHi);
+          ctx.lineTo(xMid, yLo);
+          ctx.lineTo(x1,   yLo);
+        } else {
+          ctx.lineTo(x1, yLo);
+        }
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Fill clock HIGH pulses
+      ctx.fillStyle = 'rgba(0,229,160,0.10)';
+      for (let t = 0; t <= activeT; t++) {
+        const x0   = LABEL_W + t * slotW;
+        const xMid = x0 + slotW * 0.42;
+        ctx.fillRect(x0, yHi, xMid - x0, yLo - yHi);
+      }
+    } else {
+      // ── Normal digital signal ──────────────────────
+      ctx.strokeStyle = sig.color;
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = sig.color;
+      ctx.shadowBlur = (activeT >= 0) ? 5 : 0;
+      ctx.beginPath();
+
+      let prevY = yLo;
+      ctx.moveTo(LABEL_W, prevY);
+      for (let t = 0; t < N_SLOTS; t++) {
+        const x0 = LABEL_W + t * slotW;
+        const x1 = x0 + slotW;
+        const y  = sigVals[t] ? yHi : yLo;
+        if (y !== prevY) {
+          ctx.lineTo(x0, prevY);
+          ctx.lineTo(x0, y);
+        }
+        ctx.lineTo(x1, y);
+        prevY = y;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Fill HIGH regions
+      if (sig.key !== 'CLR') {
+        ctx.fillStyle = sig.glow;
+        for (let t = 0; t < N_SLOTS; t++) {
+          if (sigVals[t]) {
+            ctx.fillRect(LABEL_W + t * slotW, yHi, slotW, yLo - yHi);
+          }
+        }
+      }
+    }
+
+    // Horizontal row separator
+    ctx.strokeStyle = 'rgba(30,45,64,0.6)';
+    ctx.lineWidth = 0.4;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(LABEL_W, rowTop + TOTAL_ROW - 1);
+    ctx.lineTo(W - RIGHT_PAD, rowTop + TOTAL_ROW - 1);
+    ctx.stroke();
+  });
+
+  // ── Right border line ─────────────────────────────────
+  ctx.strokeStyle = 'rgba(30,45,64,0.8)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(W - RIGHT_PAD, TOP_PAD - 4);
+  ctx.lineTo(W - RIGHT_PAD, H - 4);
+  ctx.stroke();
+
+  // ── Left border line ──────────────────────────────────
+  ctx.strokeStyle = 'rgba(30,45,64,0.8)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.moveTo(LABEL_W, TOP_PAD - 4);
+  ctx.lineTo(LABEL_W, H - 4);
+  ctx.stroke();
+
+  ctx.textAlign = 'left';
+}
+
+
+// Init
+window.addEventListener('resize', () => { resizeClk(); initWaveCanvases(); drawAllWaves(); drawTimingDiagram(); });
+resizeClk();
+resetSim();
+setTimeout(drawTimingDiagram, 100);
+</script>
+</body>
+</html>

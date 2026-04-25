@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="sheet8.css">
+</head>
+<body>
+<header>
+    <h1 class="page-title"> Computer Organization & Architecture</h1></header>
+    <!-- <p id="breadcrumb"> Computer Organization & Architecture > Contol Unit of Basic Computer </p> -->
+    <h2 id="topic-title">
+        Control Unit of Basic Computer
+    </h2>
+    <div id="topic-list">
+        <a href="coa_(unit)_introduction.html" style="color:white; text-decoration:none;">Introduction </a>
+        <a href="coa_(unit)_objective.html" style="color:white; text-decoration:none;">Objective    </a>    
+        <a href="coa_(unit)_component.html" style="color:white; text-decoration:none;">Components   </a>
+        <a href="coa_(unit)_working.html" style="color:white; text-decoration:none;">  Working      </a>
+        <a href="coa_(unit)_diagram.html" style="color:white; text-decoration:none;">  Diagram      </a>
+        <a href="coa_(unit)_quiz.html" style="color:#2377de; text-decoration:none;">  Quiz         </a>
+        <a href="coa_(unit)_reference.html" style="color:white; text-decoration:none;">  References   </a>
+        <a href="index.html" style="text-decoration: none; color:white;">Home</a>
+    </div>
+    <h3>Quiz</h3>
+    <ol>
+        <li><p> What is the main function of the Control Unit?</p></li>
+
+<label>
+<input type="radio" name="qcu1" value="A" onclick="cu1(this)">
+Perform calculations
+</label><br>
+
+<label>
+<input type="radio" name="qcu1" value="B" onclick="cu1(this)">
+Control and coordinate all operations
+</label><br>
+
+<label>
+<input type="radio" name="qcu1" value="C" onclick="cu1(this)">
+Store data permanently
+</label><br>
+
+<label>
+<input type="radio" name="qcu1" value="D" onclick="cu1(this)">
+Display output
+</label>
+
+<p id="rcu1"></p>
+
+<script>
+function cu1(checked)
+{
+ let options=document.getElementsByName("qcu1");
+ let result=document.getElementById("rcu1");
+
+ for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+ if(checked.value==="B")
+ {
+ checked.parentElement.style.color="green";
+ result.innerHTML="Correct Answer!";
+ result.style.color="green";
+   score++;
+ }
+ else
+ {
+ checked.parentElement.style.color="red";
+ result.innerHTML="Wrong!";
+ result.style.color="red";
+ }
+ answered++;
+showFinalScore();
+}
+</script>
+
+<li><p> Which register holds the current instruction?</p></li>
+
+<label><input type="radio" name="qcu2" value="A" onclick="cu2(this)">Program Counter</label><br>
+<label><input type="radio" name="qcu2" value="B" onclick="cu2(this)">Memory Register</label><br>
+<label><input type="radio" name="qcu2" value="C" onclick="cu2(this)">Accumulator</label><br>
+<label><input type="radio" name="qcu2" value="D" onclick="cu2(this)">Instruction Register</label>
+
+<p id="rcu2"></p>
+
+<script>
+function cu2(checked)
+{
+ let options=document.getElementsByName("qcu2");
+ let result=document.getElementById("rcu2");
+
+ for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+ if(checked.value==="D")
+ {
+ checked.parentElement.style.color="green";
+ result.innerHTML="Correct Answer!";
+ result.style.color="green";
+ score++;
+ }
+ else
+ {
+ checked.parentElement.style.color="red";
+ result.innerHTML="Wrong!";
+ result.style.color="red";
+ }
+answered++;
+showFinalScore();
+}
+</script>
+
+<li><p> What is the function of Sequence Counter?</p></li>
+
+<label><input type="radio" name="qcu3" value="A" onclick="cu3(this)">Store data</label><br>
+<label><input type="radio" name="qcu3" value="B" onclick="cu3(this)">Generate timing signals</label><br>
+<label><input type="radio" name="qcu3" value="C" onclick="cu3(this)">Perform arithmetic</label><br>
+<label><input type="radio" name="qcu3" value="D" onclick="cu3(this)">Store address</label>
+
+<p id="rcu3"></p>
+
+<script>
+function cu3(checked)
+{
+ let options=document.getElementsByName("qcu3");
+ let result=document.getElementById("rcu3");
+ 
+ for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+ if(checked.value==="B")
+ {
+ checked.parentElement.style.color="green";
+ result.innerHTML="Correct Answer!";
+ result.style.color="green";
+ score++;
+ }
+ else
+ {
+ checked.parentElement.style.color="red";
+ result.innerHTML="Wrong!";
+ result.style.color="red";
+ }
+ answered++;
+showFinalScore();
+}
+</script>
+
+<li><p>Control Unit generates:</p></li>
+
+<label><input type="radio" name="qcu4" value="A" onclick="cu4(this)">Control signals</label><br>
+<label><input type="radio" name="qcu4" value="B" onclick="cu4(this)">Data signals</label><br>
+<label><input type="radio" name="qcu4" value="C" onclick="cu4(this)">Address signals</label><br>
+<label><input type="radio" name="qcu4" value="D" onclick="cu4(this)">Power signals</label>
+
+<p id="rcu4"></p>
+
+<script>
+function cu4(checked)
+{
+ let options=document.getElementsByName("qcu4");
+ let result=document.getElementById("rcu4");
+
+for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+ if(checked.value==="A")
+ {
+ checked.parentElement.style.color="green";
+ result.innerHTML="Correct Answer!";
+ result.style.color="green";
+ score++;
+ }
+ else
+ {
+ checked.parentElement.style.color="red";
+ result.innerHTML="Wrong!";
+ result.style.color="red";
+ }
+answered++;
+showFinalScore();
+}
+</script>
+
+<li><p> Control Unit follows which cycle?</p></li>
+
+<label><input type="radio" name="qcu5" value="A" onclick="cu5(this)">Input Cycle</label><br>
+<label><input type="radio" name="qcu5" value="B" onclick="cu5(this)">Output Cycle</label><br>
+<label><input type="radio" name="qcu5" value="C" onclick="cu5(this)">Fetch-Decode-Execute Cycle</label><br>
+<label><input type="radio" name="qcu5" value="D" onclick="cu5(this)">Power Cycle</label>
+
+<p id="rcu5"></p>
+
+<script>
+function cu5(checked)
+{
+ let options=document.getElementsByName("qcu5");
+ let result=document.getElementById("rcu5");
+
+for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+ if(checked.value==="C")
+ {
+ checked.parentElement.style.color="green";
+ result.innerHTML="Correct Answer!";
+ result.style.color="green";
+ score++;
+ }
+ else
+ {
+ checked.parentElement.style.color="red";
+ result.innerHTML="Wrong!";
+ result.style.color="red";
+ }
+ answered++;
+showFinalScore();
+}
+</script>
+<script id="quiz">
+function showFinalScore()
+{
+ if(answered === total)
+ {
+  let final = document.getElementById("finalScore");
+  final.innerHTML = "Final Score: " + score + " / " + total;
+  final.style.color = "white";
+  final.style.fontSize = "30px";
+ }
+}</script>
+<p id="finalScore"></p>
+
+<script>
+let score = 0;
+let answered = 0;
+let total = 5;
+</script>
+</ol>
+</body>
+</html>

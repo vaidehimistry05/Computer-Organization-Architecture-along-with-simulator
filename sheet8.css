@@ -1,0 +1,113 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Body */
+body {
+    background-color: #0B1220;
+    color: #E5E7EB;
+    padding: 20px;
+}
+
+/* Page Title */
+.page-title {
+    font-size: 35px;
+    text-align: center;
+    padding: 15px;
+    border: 4px solid #c7dae2;
+    border-radius: 15px;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+/* Breadcrumb */
+#breadcrumb {
+    margin-top: 20px;
+    font-weight: bold;
+    color: #a4b0c1;
+    font-size: 25px;
+    display: inline-block;
+}
+
+/* Topic Title */
+#topic-title {
+    text-align: center;
+    font-size: 28px;
+    margin-left: 20px;
+}
+
+/* Topics Section Wrapper */
+#topics {
+    display: inline-block;
+    margin-top: 30px;
+    margin-left: 50px;
+    font-size: 25px;
+}
+
+/* Topic List */
+#topic-list {
+    margin-top:20px;
+    height: 50px;
+    background-color: #182441;
+    border: 1px solid #1E293B;
+    padding-top:15px;
+
+}
+
+a{
+    margin-left:90px;
+    text-transform: uppercase;
+}
+
+
+button{
+    margin-left:100px;
+    background-color: #f08804;
+}
+/* Topic Items */
+#topic-item {
+    padding: 16px;
+    border-bottom: 1px solid #1E293B;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#topic-item:hover {
+    background-color: #1E293B;
+    transform: scale(1.02);
+}
+
+/* Horizontal Rule */
+hr {
+    border: none;
+    border-top: 1px solid rgba(228, 233, 242, 0.8);
+    margin: 10px 0;
+}
+
+h3{
+    text-align:center;
+    font-size: 30px;
+    margin-top:30px;
+    margin-bottom:30px;
+}
+
+li{
+    margin-left:5px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+label{
+    margin-top:10px;
+    margin-bottom:10px;
+}
+ol{
+    margin-left:50px;
+}
+
+input{
+    margin-bottom:20px;
+}

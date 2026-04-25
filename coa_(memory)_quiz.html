@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="sheet(m)6.css">
+<body>
+<header>
+    <h1 class="page-title"> Computer Organization & Architecture</h1></header>
+    <!-- <p id="breadcrumb"> Computer Organization & Architecture > Contol Unit of Basic Computer </p> -->
+    <h2 id="topic-title">
+        Control Memory of 8085
+    </h2>
+    <div id="topic-list">
+        <a href="coa_(memory)_introduction.html" style="color:white; text-decoration:none;">Introduction </a>
+        <a href="coa_(memory)_objective.html" style="color:white; text-decoration:none;">Objective    </a>    
+        <a href="coa_(memory)_component.html" style="color:white; text-decoration:none;">Components   </a>
+        <a href="coa_(memory)_working.html" style="color:white; text-decoration:none;">  Working      </a>
+        <a href="coa_(memory)_diagram.html" style="color:white; text-decoration:none;">  Diagram      </a>
+        <a href="coa_(memory)_quiz.html" style="color:#2377de; text-decoration:none;">  Quiz         </a>
+        <a href="coa_(memory)_reference.html" style="color:white; text-decoration:none;">  References   </a>
+        <a href="index.html" style="text-decoration: none; color:white;">Home</a>
+    </div>
+    <div class="content-section">
+    <h3>Quiz</h3>
+  <ol>
+        
+<li><p>Which control signal is used in the 8085 microprocessor for I/O operation?</p></li>
+
+<br>
+
+<form>
+
+<label>
+<input type="radio" name="q1" value="RD" onclick="check(this)">
+RD̅
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q1" value="WR" onclick="check(this)">
+WR̅
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q1" value="IOM" onclick="check(this)">
+IO/M̅
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q1" value="ALE" onclick="check(this)">
+ALE
+</label>
+
+<p id="result"></p>
+</form>
+
+<script>
+
+function check(selected)
+{
+      let options = document.getElementsByName("q1");
+        let result= document.getElementById("result");
+
+         for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+    if(selected.value === "IOM")
+    {
+        selected.parentElement.style.color = "green";
+        result.innerHTML = "Correct Answer!";
+        result.style.color = "green";
+        score++;
+    }
+    else
+    {
+        selected.parentElement.style.color = "red";
+        result.innerHTML = "Wrong Answer!";
+        result.style.color = "red";
+    }
+    answered++;
+showFinalScore();
+}
+</script>
+
+<li><p>Which unit generates control signals in the 8085 microprocessor?</p></li>
+<br>
+
+<form>
+
+<label>
+<input type="radio" name="q2" value="Arithmetic Logic Unit" onclick="Answer(this)">
+Arithmetic Logic Unit
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q2" value="Control Unit" onclick="Answer(this)">
+Control Unit
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q2" value="Register Unit" onclick="Answer(this)">
+Register Unit
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q2" value="Memory Unit" onclick="Answer(this)">
+Memory Unit
+</label>
+
+<p id="Result"></p>
+
+</form>
+
+<script>
+
+function Answer(Selected)
+{
+    let options = document.getElementsByName("q2");
+    let result = document.getElementById("Result");
+
+    for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+    
+    if(Selected.value === "Control Unit")
+    {
+        Selected.parentElement.style.color = "green";
+        result.innerHTML = "Correct Answer!";
+        result.style.color = "green";
+        score++;
+    }
+    else
+    {
+        Selected.parentElement.style.color = "red";
+        result.innerHTML = "Wrong Answer!";
+        result.style.color = "red";
+    }
+    answered++;
+showFinalScore();
+
+}
+
+</script>
+
+<li><p>Which of the following operations is performed when RD̅ signal is active?</p></li>
+<br>
+
+<form>
+
+<label>
+<input type="radio" name="q3" value="Memory Read" onclick="answer(this)">
+Memory Read
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q3" value="Memory Write" onclick="answer(this)">
+Memory Write
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q3" value="Data Transfer" onclick="answer(this)">
+Data Transfer
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q3" value="MInstruction Decode" onclick="answer(this)">
+Instruction Decode
+</label>
+
+<p id="r1"></p>
+
+</form>
+
+<script>
+
+function answer(checked)
+{
+    let options = document.getElementsByName("q3");
+    let result = document.getElementById("r1");
+
+    for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+    if(checked.value === "Memory Read")
+    {
+        checked.parentElement.style.color = "green";
+        result.innerHTML = "Correct Answer!";
+        result.style.color = "green";
+        score++;
+    }
+    else
+    {
+        checked.parentElement.style.color = "red";
+        result.innerHTML = "Wrong Answer!";
+        result.style.color = "red";
+    }
+    answered++;
+showFinalScore();
+}
+
+
+</script> 
+
+<form>
+
+<li><p>Which combination of control signals is used for Memory Read operation in 8085?</p></li>
+<br>
+
+<label>
+<input type="radio" name="q4" value="A" onclick="answer4(this)">
+IO/M̅ = 1 and WR̅ = 0
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q4" value="B" onclick="answer4(this)">
+IO/M̅ = 0 and RD̅ = 0
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q4" value="C" onclick="answer4(this)">
+IO/M̅ = 1 and RD̅ = 0
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q4" value="D" onclick="answer4(this)">
+IO/M̅ = 0 and WR̅ = 1
+</label>
+
+<p id="r4"></p>
+
+</form>
+
+
+<script>
+
+function answer4(checked)
+{
+    let options = document.getElementsByName("q4");
+    let result = document.getElementById("r4");
+
+   for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+    if(checked.value === "B")
+    {
+        checked.parentElement.style.color = "green";
+        result.innerHTML = "Correct Answer!";
+        result.style.color = "green";
+        score++;
+    }
+    else
+    {
+        checked.parentElement.style.color = "red";
+        result.innerHTML = "Wrong Answer!";
+        result.style.color = "red";
+    }
+    answered++;
+showFinalScore();
+}
+
+</script>
+
+<form>
+
+<li><p>Which register is used to hold the current instruction in 8085?</p></li>
+<br>
+
+<label>
+<input type="radio" name="q5" value="PC" onclick="answer5(this)">
+Program Counter (PC)
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q5" value="IR" onclick="answer5(this)">
+Instruction Register (IR)
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q5" value="A" onclick="answer5(this)">
+Accumulator (A)
+</label>
+<br><br>
+
+<label>
+<input type="radio" name="q5" value="SP" onclick="answer5(this)">
+Stack Pointer (SP)
+</label>
+
+<p id="r5"></p>
+
+</form>
+
+
+<script>
+
+function answer5(checked)
+{
+    let options = document.getElementsByName("q5");
+    let result = document.getElementById("r5");
+
+    for(let i=0;i<options.length;i++)
+ {
+  options[i].disabled=true;
+ }
+
+    if(checked.value === "IR")
+    {
+        checked.parentElement.style.color = "green";
+        result.innerHTML = "Correct Answer!";
+        result.style.color = "green";
+        score++;
+    }
+    else
+    {
+        checked.parentElement.style.color = "red";
+        result.innerHTML = "Wrong Answer!";
+        result.style.color = "red";
+    }
+    answered++;
+showFinalScore();
+}
+</script>
+
+<p id="finalScore"></p>
+<script>
+let score = 0;
+let answered = 0;
+let total = 5;
+</script>
+<script id="quiz">
+function showFinalScore()
+{
+ if(answered === total)
+ {
+  let final = document.getElementById("finalScore");
+  final.innerHTML = "Final Score: " + score + " / " + total;
+  final.style.color = "white";
+  final.style.fontSize = "30px";
+ }
+}</script>
+
+</script>
+
+</ol>
+
+
+   </body>
+   </head>
+   </html>
